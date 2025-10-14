@@ -2585,7 +2585,6 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 
 	scene_state.enable_gl_alpha_to_coverage(false);
 	
-
 	{
 		GLuint db = GL_COLOR_ATTACHMENT0;
 		glDrawBuffers(1, &db);
@@ -2623,7 +2622,6 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	}
 
 	if (rt && scene_state.used_depth_texture) {
-	
 		Size2i size;
 		GLuint backbuffer_fbo = 0;
 		GLuint backbuffer_depth = 0;
@@ -2654,7 +2652,6 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 
 		// Bound framebuffer may have changed, so change it back
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
 	}
 
 	RENDER_TIMESTAMP("Render Opaque Pass");
@@ -2704,7 +2701,6 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 		scene_state.enable_gl_depth_test(true);
 		scene_state.enable_gl_blend(true);
 	}
-
 
 	// Render Opaque Objects.
 	RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, spec_constant_base_flags, use_wireframe);
@@ -3055,11 +3051,11 @@ void RasterizerSceneGLES3::_render_list_template(RenderListParameters *p_params,
 		if (p_pass_mode == PASS_MODE_COLOR && !(surf->flags & GeometryInstanceSurface::FLAG_PASS_OPAQUE)) {
 			continue; // Objects with "Depth-prepass" transparency are included in both render lists, but should only be rendered in the transparent pass
 		}
-		
+
 		if (p_pass_mode == PASS_MODE_COLOR && (surf->flags & GeometryInstanceSurface::FLAG_SKIPS_OPAQUE)) {
 			continue; //Shader skips opaque
 		}
-		
+
 		if (p_pass_mode == PASS_MODE_DEPTH && (surf->flags & GeometryInstanceSurface::FLAG_SKIPS_DEPTH)) {
 			continue; // Shader skips depth
 		}
