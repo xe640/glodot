@@ -2584,7 +2584,7 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	}
 
 	scene_state.enable_gl_alpha_to_coverage(false);
-	
+
 	{
 		GLuint db = GL_COLOR_ATTACHMENT0;
 		glDrawBuffers(1, &db);
