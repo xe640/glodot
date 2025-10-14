@@ -2633,28 +2633,28 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 		scene_state.enable_gl_depth_draw(true);
 	}
 
-	Size2i size;
-	GLuint backbuffer_fbo = 0;
-	GLuint backbuffer = 0;
-	GLuint backbuffer_depth = 0;
-	if (rt && (scene_state.used_screen_texture || scene_state.used_depth_texture)) {
+	if (rt && scene_state.used_depth_texture) {
 	
+		Size2i size;
+		GLuint backbuffer_fbo = 0;
+		GLuint backbuffer = 0;
+		GLuint backbuffer_depth = 0;
+
 		if (rb->get_scaling_3d_mode() == RS::VIEWPORT_SCALING_3D_MODE_OFF) {
-			texture_storage->check_backbuffer(rt, scene_state.used_screen_texture, scene_state.used_depth_texture); // note, badly names, this just allocates!
+			texture_storage->check_backbuffer(rt, false, scene_state.used_depth_texture); // note, badly names, this just allocates!
 
 			size = rt->size;
 			backbuffer_fbo = rt->backbuffer_fbo;
 			backbuffer = rt->backbuffer;
 			backbuffer_depth = rt->backbuffer_depth;
 		} else {
-			rb->check_backbuffer(scene_state.used_screen_texture, scene_state.used_depth_texture);
+			rb->check_backbuffer(false, scene_state.used_depth_texture);
 			size = rb->get_internal_size();
 			backbuffer_fbo = rb->get_backbuffer_fbo();
 			backbuffer = rb->get_backbuffer();
 			backbuffer_depth = rb->get_backbuffer_depth();
 		}
-	}
-	if (rt && scene_state.used_depth_texture) {
+
 		if (backbuffer_fbo != 0) {
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 			glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -2668,6 +2668,7 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 
 		// Bound framebuffer may have changed, so change it back
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
 	}
 
 	RENDER_TIMESTAMP("Render Opaque Pass");
@@ -2748,6 +2749,26 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	}
 
 	if (rt && scene_state.used_screen_texture) {
+		Size2i size;
+		GLuint backbuffer_fbo = 0;
+		GLuint backbuffer = 0;
+		GLuint backbuffer_depth = 0;
+
+		if (rb->get_scaling_3d_mode() == RS::VIEWPORT_SCALING_3D_MODE_OFF) {
+			texture_storage->check_backbuffer(rt, true, scene_state.used_depth_texture); // note, badly names, this just allocates!
+
+			size = rt->size;
+			backbuffer_fbo = rt->backbuffer_fbo;
+			backbuffer = rt->backbuffer;
+			backbuffer_depth = rt->backbuffer_depth;
+		} else {
+			rb->check_backbuffer(true, scene_state.used_depth_texture);
+			size = rb->get_internal_size();
+			backbuffer_fbo = rb->get_backbuffer_fbo();
+			backbuffer = rb->get_backbuffer();
+			backbuffer_depth = rb->get_backbuffer_depth();
+		}
+
 		if (backbuffer_fbo != 0) {
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
 			glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -2757,6 +2778,8 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 					GL_COLOR_BUFFER_BIT, GL_NEAREST);
 			glActiveTexture(GL_TEXTURE0 + config->max_texture_image_units - 6);
 			glBindTexture(GL_TEXTURE_2D, backbuffer);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 
 		// Bound framebuffer may have changed, so change it back
