@@ -230,12 +230,10 @@ void RasterizerSceneGLES3::_geometry_instance_add_surface_with_material(Geometry
 
 	if (p_material->shader_data->opaque_skipped) {
 		flags |= GeometryInstanceSurface::FLAG_SKIPS_OPAQUE;
-		//WARN_PRINT_ED("OPSKIP FLAG SET in material");
 	}
 
 	if (p_material->shader_data->depth_prepass_skipped) {
 		flags |= GeometryInstanceSurface::FLAG_SKIPS_DEPTH;
-		//WARN_PRINT_ED("DSKIP FLAG SET in material");
 	}
 
 	if (has_alpha || has_read_screen_alpha || (p_material->shader_data->depth_draw == GLES3::SceneShaderData::DEPTH_DRAW_DISABLED) || p_material->shader_data->depth_test != GLES3::SceneShaderData::DEPTH_TEST_ENABLED) {
@@ -248,7 +246,7 @@ void RasterizerSceneGLES3::_geometry_instance_add_surface_with_material(Geometry
 	} else {
 		flags |= GeometryInstanceSurface::FLAG_PASS_OPAQUE;
 		flags |= GeometryInstanceSurface::FLAG_PASS_DEPTH;
-		if(!p_material->shader_data->depth_prepass_skipped){
+		if (!p_material->shader_data->depth_prepass_skipped) {
 			flags |= GeometryInstanceSurface::FLAG_PASS_SHADOW;
 		}
 	}
@@ -1440,11 +1438,7 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 				bool force_alpha = false;
 #endif
 				if (!force_alpha && (surf->flags & (GeometryInstanceSurface::FLAG_PASS_OPAQUE | GeometryInstanceSurface::FLAG_PASS_DEPTH))) {
-					//if(!(surf->flags & GeometryInstanceSurface::FLAG_SKIPS_OPAQUE)){
-						rl->add_element(surf);
-					//}else{
-					//	WARN_PRINT_ED("Opaque skipped");
-					//}
+					rl->add_element(surf);
 				}
 				if (force_alpha || (surf->flags & GeometryInstanceSurface::FLAG_PASS_ALPHA)) {
 					render_list[RENDER_LIST_ALPHA].add_element(surf);
@@ -1459,13 +1453,13 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 				if (surf->flags & GeometryInstanceSurface::FLAG_USES_DEPTH_TEXTURE) {
 					scene_state.used_depth_texture = true;
 				}
-				if ((surf->flags & GeometryInstanceSurface::FLAG_USES_STENCIL) && !force_alpha && (surf->flags & GeometryInstanceSurface::FLAG_PASS_DEPTH )) {
+				if ((surf->flags & GeometryInstanceSurface::FLAG_USES_STENCIL) && !force_alpha && (surf->flags & GeometryInstanceSurface::FLAG_PASS_DEPTH)) {
 					scene_state.used_opaque_stencil = true;
 				}
 
 			} else if (p_pass_mode == PASS_MODE_SHADOW) {
 				if ((surf->flags & GeometryInstanceSurface::FLAG_PASS_SHADOW)) {
-					if(!(surf->flags & GeometryInstanceSurface::FLAG_SKIPS_DEPTH)){
+					if (!(surf->flags & GeometryInstanceSurface::FLAG_SKIPS_DEPTH)) {
 						rl->add_element(surf);
 					}
 				}
@@ -1474,13 +1468,8 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 					rl->add_element(surf);
 				}
 			} else { // p_pass_mode == PASS_MODE_DEPTH
-				if ((surf->flags & (GeometryInstanceSurface::FLAG_PASS_OPAQUE | GeometryInstanceSurface::FLAG_PASS_DEPTH))){
-					//if(!(surf->flags & GeometryInstanceSurface::FLAG_SKIPS_DEPTH)){
-						rl->add_element(surf);
-					//}
-					//else{
-					//	WARN_PRINT_ED("Depth skipped");
-					//}
+				if ((surf->flags & (GeometryInstanceSurface::FLAG_PASS_OPAQUE | GeometryInstanceSurface::FLAG_PASS_DEPTH))) {
+					rl->add_element(surf);
 				}
 			}
 
@@ -2595,7 +2584,6 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	}
 
 	scene_state.enable_gl_alpha_to_coverage(false);
-	
 
 	{
 		GLuint db = GL_COLOR_ATTACHMENT0;
@@ -2634,10 +2622,8 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	}
 
 	if (rt && scene_state.used_depth_texture) {
-	
 		Size2i size;
 		GLuint backbuffer_fbo = 0;
-		GLuint backbuffer = 0;
 		GLuint backbuffer_depth = 0;
 
 		if (rb->get_scaling_3d_mode() == RS::VIEWPORT_SCALING_3D_MODE_OFF) {
@@ -2645,13 +2631,11 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 
 			size = rt->size;
 			backbuffer_fbo = rt->backbuffer_fbo;
-			backbuffer = rt->backbuffer;
 			backbuffer_depth = rt->backbuffer_depth;
 		} else {
 			rb->check_backbuffer(false, scene_state.used_depth_texture);
 			size = rb->get_internal_size();
 			backbuffer_fbo = rb->get_backbuffer_fbo();
-			backbuffer = rb->get_backbuffer();
 			backbuffer_depth = rb->get_backbuffer_depth();
 		}
 
@@ -2668,7 +2652,6 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 
 		// Bound framebuffer may have changed, so change it back
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-
 	}
 
 	RENDER_TIMESTAMP("Render Opaque Pass");
@@ -2719,7 +2702,6 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 		scene_state.enable_gl_blend(true);
 	}
 
-
 	// Render Opaque Objects.
 	RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, spec_constant_base_flags, use_wireframe);
 	_render_list_template<PASS_MODE_COLOR>(&render_list_params, &render_data, 0, render_list[RENDER_LIST_OPAQUE].elements.size());
@@ -2752,7 +2734,6 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 		Size2i size;
 		GLuint backbuffer_fbo = 0;
 		GLuint backbuffer = 0;
-		GLuint backbuffer_depth = 0;
 
 		if (rb->get_scaling_3d_mode() == RS::VIEWPORT_SCALING_3D_MODE_OFF) {
 			texture_storage->check_backbuffer(rt, true, scene_state.used_depth_texture); // note, badly names, this just allocates!
@@ -2760,13 +2741,11 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 			size = rt->size;
 			backbuffer_fbo = rt->backbuffer_fbo;
 			backbuffer = rt->backbuffer;
-			backbuffer_depth = rt->backbuffer_depth;
 		} else {
 			rb->check_backbuffer(true, scene_state.used_depth_texture);
 			size = rb->get_internal_size();
 			backbuffer_fbo = rb->get_backbuffer_fbo();
 			backbuffer = rb->get_backbuffer();
-			backbuffer_depth = rb->get_backbuffer_depth();
 		}
 
 		if (backbuffer_fbo != 0) {
@@ -3072,11 +3051,11 @@ void RasterizerSceneGLES3::_render_list_template(RenderListParameters *p_params,
 		if (p_pass_mode == PASS_MODE_COLOR && !(surf->flags & GeometryInstanceSurface::FLAG_PASS_OPAQUE)) {
 			continue; // Objects with "Depth-prepass" transparency are included in both render lists, but should only be rendered in the transparent pass
 		}
-		
+
 		if (p_pass_mode == PASS_MODE_COLOR && (surf->flags & GeometryInstanceSurface::FLAG_SKIPS_OPAQUE)) {
 			continue; //Shader skips opaque
 		}
-		
+
 		if (p_pass_mode == PASS_MODE_DEPTH && (surf->flags & GeometryInstanceSurface::FLAG_SKIPS_DEPTH)) {
 			continue; // Shader skips depth
 		}
