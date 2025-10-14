@@ -1459,7 +1459,7 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 
 			} else if (p_pass_mode == PASS_MODE_SHADOW) {
 				if ((surf->flags & GeometryInstanceSurface::FLAG_PASS_SHADOW)) {
-					if(!(surf->flags & GeometryInstanceSurface::FLAG_SKIPS_DEPTH)){
+					if(!(surf->flags & GeometryInstanceSurface::FLAG_SKIPS_DEPTH)) {
 						rl->add_element(surf);
 					}
 				}
