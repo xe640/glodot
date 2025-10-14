@@ -230,12 +230,10 @@ void RasterizerSceneGLES3::_geometry_instance_add_surface_with_material(Geometry
 
 	if (p_material->shader_data->opaque_skipped) {
 		flags |= GeometryInstanceSurface::FLAG_SKIPS_OPAQUE;
-		//WARN_PRINT_ED("OPSKIP FLAG SET in material");
 	}
 
 	if (p_material->shader_data->depth_prepass_skipped) {
 		flags |= GeometryInstanceSurface::FLAG_SKIPS_DEPTH;
-		//WARN_PRINT_ED("DSKIP FLAG SET in material");
 	}
 
 	if (has_alpha || has_read_screen_alpha || (p_material->shader_data->depth_draw == GLES3::SceneShaderData::DEPTH_DRAW_DISABLED) || p_material->shader_data->depth_test != GLES3::SceneShaderData::DEPTH_TEST_ENABLED) {
@@ -248,7 +246,7 @@ void RasterizerSceneGLES3::_geometry_instance_add_surface_with_material(Geometry
 	} else {
 		flags |= GeometryInstanceSurface::FLAG_PASS_OPAQUE;
 		flags |= GeometryInstanceSurface::FLAG_PASS_DEPTH;
-		if(!p_material->shader_data->depth_prepass_skipped){
+		if (!p_material->shader_data->depth_prepass_skipped) {
 			flags |= GeometryInstanceSurface::FLAG_PASS_SHADOW;
 		}
 	}
@@ -1440,11 +1438,7 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 				bool force_alpha = false;
 #endif
 				if (!force_alpha && (surf->flags & (GeometryInstanceSurface::FLAG_PASS_OPAQUE | GeometryInstanceSurface::FLAG_PASS_DEPTH))) {
-					//if(!(surf->flags & GeometryInstanceSurface::FLAG_SKIPS_OPAQUE)){
-						rl->add_element(surf);
-					//}else{
-					//	WARN_PRINT_ED("Opaque skipped");
-					//}
+					rl->add_element(surf);
 				}
 				if (force_alpha || (surf->flags & GeometryInstanceSurface::FLAG_PASS_ALPHA)) {
 					render_list[RENDER_LIST_ALPHA].add_element(surf);
@@ -1459,7 +1453,7 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 				if (surf->flags & GeometryInstanceSurface::FLAG_USES_DEPTH_TEXTURE) {
 					scene_state.used_depth_texture = true;
 				}
-				if ((surf->flags & GeometryInstanceSurface::FLAG_USES_STENCIL) && !force_alpha && (surf->flags & GeometryInstanceSurface::FLAG_PASS_DEPTH )) {
+				if ((surf->flags & GeometryInstanceSurface::FLAG_USES_STENCIL) && !force_alpha && (surf->flags & GeometryInstanceSurface::FLAG_PASS_DEPTH)) {
 					scene_state.used_opaque_stencil = true;
 				}
 
@@ -1474,13 +1468,8 @@ void RasterizerSceneGLES3::_fill_render_list(RenderListType p_render_list, const
 					rl->add_element(surf);
 				}
 			} else { // p_pass_mode == PASS_MODE_DEPTH
-				if ((surf->flags & (GeometryInstanceSurface::FLAG_PASS_OPAQUE | GeometryInstanceSurface::FLAG_PASS_DEPTH))){
-					//if(!(surf->flags & GeometryInstanceSurface::FLAG_SKIPS_DEPTH)){
-						rl->add_element(surf);
-					//}
-					//else{
-					//	WARN_PRINT_ED("Depth skipped");
-					//}
+				if ((surf->flags & (GeometryInstanceSurface::FLAG_PASS_OPAQUE | GeometryInstanceSurface::FLAG_PASS_DEPTH))) {
+					rl->add_element(surf);
 				}
 			}
 
