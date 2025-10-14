@@ -503,7 +503,6 @@ private:
 			current_stencil_compare_mask = 255;
 
 			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-			glDisable(GL_SAMPLE_ALPHA_TO_ONE);
 			alpha_to_coverage_and_one_enabled = false;
 		}
 
@@ -555,10 +554,8 @@ private:
 			if (alpha_to_coverage_and_one_enabled != p_enabled) {
 				if (p_enabled) {
 					glEnable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-					glEnable(GL_SAMPLE_ALPHA_TO_ONE);
 				} else {
 					glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
-					glDisable(GL_SAMPLE_ALPHA_TO_ONE);
 				}
 				alpha_to_coverage_and_one_enabled = p_enabled;
 			}
