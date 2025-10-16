@@ -2648,6 +2648,8 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 					GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 			glActiveTexture(GL_TEXTURE0 + config->max_texture_image_units - 7);
 			glBindTexture(GL_TEXTURE_2D, backbuffer_depth);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmap(GL_TEXTURE_2D);
 		}
 
 		// Bound framebuffer may have changed, so change it back
