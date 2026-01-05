@@ -2704,7 +2704,7 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 		GLuint backbuffer_depth = 0;
 
 		if (rb->get_scaling_3d_mode() == RS::VIEWPORT_SCALING_3D_MODE_OFF) {
-			texture_storage->check_backbuffer(rt, false, scene_state.used_depth_texture); // note, badly names, this just allocates!
+			rb->check_backbuffer(false, scene_state.used_depth_texture); // note, badly names, this just allocates!
 
 			size = rt->size;
 			backbuffer_fbo = rt->backbuffer_fbo;
@@ -2815,7 +2815,7 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 		GLuint backbuffer = 0;
 
 		if (rb->get_scaling_3d_mode() == RS::VIEWPORT_SCALING_3D_MODE_OFF) {
-			texture_storage->check_backbuffer(rt, true, scene_state.used_depth_texture); // note, badly names, this just allocates!
+			rb->check_backbuffer(true, scene_state.used_depth_texture); // note, badly names, this just allocates!
 
 			size = rt->size;
 			backbuffer_fbo = rt->backbuffer_fbo;
