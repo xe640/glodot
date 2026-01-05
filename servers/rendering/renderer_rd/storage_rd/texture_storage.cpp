@@ -1504,8 +1504,7 @@ Ref<Image> TextureStorage::texture_2d_get(RID p_texture) const {
 	ERR_FAIL_COND_V(data.is_empty(), Ref<Image>());
 	Ref<Image> image;
 
-	// Expand RGB10_A2 into RGBAH. This is needed for capturing viewport data
-	// when using the mobile renderer with HDR mode on.
+	// Expand RGB10_A2 into RGBAH.
 	if (tex->rd_format == RD::DATA_FORMAT_A2B10G10R10_UNORM_PACK32) {
 		Vector<uint8_t> new_data;
 		new_data.resize(data.size() * 2);
@@ -3494,12 +3493,16 @@ void TextureStorage::update_decal_buffer(const PagedArray<RID> &p_decals, const 
 /* RENDER TARGET API */
 
 RID TextureStorage::RenderTarget::get_framebuffer() {
-	// Note that if we're using an overridden color buffer, we're likely cycling through a texture chain.
-	// this is where our framebuffer cache comes in clutch..
+	// We can't resolve into our overridden buffer as it won't be marked as a resolve buffer.
+	// This is only applicable when OpenXR is used and 2D rendering is skipped.
 
-	if (msaa != RS::VIEWPORT_MSAA_DISABLED) {
-		return FramebufferCacheRD::get_singleton()->get_cache_multiview(view_count, color_multisample, overridden.color.is_valid() ? overridden.color : color);
+	if (msaa != RS::VIEWPORT_MSAA_DISABLED && overridden.color.is_null()) {
+		// Render into our MSAA buffer and resolve into our color buffer.
+		return FramebufferCacheRD::get_singleton()->get_cache_multiview(view_count, color_multisample, color);
 	} else {
+		// Note that if we're using an overridden color buffer, we're likely cycling through a texture chain.
+		// this is where our framebuffer cache comes in clutch..
+
 		return FramebufferCacheRD::get_singleton()->get_cache_multiview(view_count, overridden.color.is_valid() ? overridden.color : color);
 	}
 }
@@ -3543,6 +3546,10 @@ void TextureStorage::_clear_render_target(RenderTarget *rt) {
 }
 
 void TextureStorage::_update_render_target(RenderTarget *rt) {
+	if (rt->overridden.color.is_valid()) {
+		return;
+	}
+
 	if (rt->texture.is_null()) {
 		//create a placeholder until updated
 		rt->texture = texture_allocate();
@@ -4026,7 +4033,7 @@ bool TextureStorage::render_target_is_clear_requested(RID p_render_target) {
 Color TextureStorage::render_target_get_clear_request_color(RID p_render_target) {
 	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
 	ERR_FAIL_NULL_V(rt, Color());
-	return rt->use_hdr ? rt->clear_color.srgb_to_linear() : rt->clear_color;
+	return rt->clear_color;
 }
 
 void TextureStorage::render_target_disable_clear_request(RID p_render_target) {
@@ -4533,7 +4540,7 @@ RID TextureStorage::render_target_get_vrs_texture(RID p_render_target) const {
 
 RD::DataFormat TextureStorage::render_target_get_color_format(bool p_use_hdr, bool p_srgb) {
 	if (p_use_hdr) {
-		return RendererSceneRenderRD::get_singleton()->_render_buffers_get_color_format();
+		return RD::DATA_FORMAT_R16G16B16A16_SFLOAT;
 	} else {
 		return p_srgb ? RD::DATA_FORMAT_R8G8B8A8_SRGB : RD::DATA_FORMAT_R8G8B8A8_UNORM;
 	}

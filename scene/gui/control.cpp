@@ -36,7 +36,6 @@
 #include "core/input/input_map.h"
 #include "core/os/os.h"
 #include "core/string/string_builder.h"
-#include "core/string/translation_server.h"
 #include "scene/gui/scroll_container.h"
 #include "scene/main/canvas_layer.h"
 #include "scene/main/window.h"
@@ -180,7 +179,7 @@ bool Control::_edit_use_rect() const {
 }
 #endif // DEBUG_ENABLED
 
-void Control::reparent(Node *p_parent, bool p_keep_global_transform) {
+void Control::reparent(RequiredParam<Node> p_parent, bool p_keep_global_transform) {
 	ERR_MAIN_THREAD_GUARD;
 	if (p_keep_global_transform) {
 		Transform2D temp = get_global_transform();
@@ -2263,7 +2262,11 @@ void Control::set_focus_mode(FocusMode p_focus_mode) {
 		release_focus();
 	}
 
+	if (data.focus_mode == p_focus_mode) {
+		return;
+	}
 	data.focus_mode = p_focus_mode;
+	queue_accessibility_update();
 }
 
 Control::FocusMode Control::get_focus_mode() const {
@@ -2287,6 +2290,7 @@ void Control::set_focus_behavior_recursive(FocusBehaviorRecursive p_focus_behavi
 	}
 	data.focus_behavior_recursive = p_focus_behavior_recursive;
 	_update_focus_behavior_recursive();
+	queue_accessibility_update();
 }
 
 Control::FocusBehaviorRecursive Control::get_focus_behavior_recursive() const {
@@ -2349,6 +2353,13 @@ bool Control::has_focus(bool p_ignore_hidden_focus) const {
 void Control::grab_focus(bool p_hide_focus) {
 	ERR_MAIN_THREAD_GUARD;
 	ERR_FAIL_COND(!is_inside_tree());
+
+	if (get_focus_mode_with_override() == FOCUS_ACCESSIBILITY) {
+		if (!get_tree()->is_accessibility_enabled()) {
+			WARN_PRINT("This control can grab focus only when screen reader is active. Use set_focus_mode() and set_focus_behavior_recursive() to allow a control to get focus. Use get_tree().is_accessibility_enabled() to check screen-reader state.");
+			return;
+		}
+	}
 
 	if (get_focus_mode_with_override() == FOCUS_NONE) {
 		WARN_PRINT("This control can't grab focus. Use set_focus_mode() and set_focus_behavior_recursive() to allow a control to get focus.");
@@ -3326,9 +3337,9 @@ bool Control::has_theme_constant(const StringName &p_name, const StringName &p_t
 
 /// Local property overrides.
 
-void Control::add_theme_icon_override(const StringName &p_name, const Ref<Texture2D> &p_icon) {
+void Control::add_theme_icon_override(const StringName &p_name, RequiredParam<Texture2D> rp_icon) {
 	ERR_MAIN_THREAD_GUARD;
-	ERR_FAIL_COND(p_icon.is_null());
+	EXTRACT_PARAM_OR_FAIL(p_icon, rp_icon);
 
 	if (data.theme_icon_override.has(p_name)) {
 		data.theme_icon_override[p_name]->disconnect_changed(callable_mp(this, &Control::_notify_theme_override_changed));
@@ -3339,9 +3350,9 @@ void Control::add_theme_icon_override(const StringName &p_name, const Ref<Textur
 	_notify_theme_override_changed();
 }
 
-void Control::add_theme_style_override(const StringName &p_name, const Ref<StyleBox> &p_style) {
+void Control::add_theme_style_override(const StringName &p_name, RequiredParam<StyleBox> rp_style) {
 	ERR_MAIN_THREAD_GUARD;
-	ERR_FAIL_COND(p_style.is_null());
+	EXTRACT_PARAM_OR_FAIL(p_style, rp_style);
 
 	if (data.theme_style_override.has(p_name)) {
 		data.theme_style_override[p_name]->disconnect_changed(callable_mp(this, &Control::_notify_theme_override_changed));
@@ -3352,9 +3363,9 @@ void Control::add_theme_style_override(const StringName &p_name, const Ref<Style
 	_notify_theme_override_changed();
 }
 
-void Control::add_theme_font_override(const StringName &p_name, const Ref<Font> &p_font) {
+void Control::add_theme_font_override(const StringName &p_name, RequiredParam<Font> rp_font) {
 	ERR_MAIN_THREAD_GUARD;
-	ERR_FAIL_COND(p_font.is_null());
+	EXTRACT_PARAM_OR_FAIL(p_font, rp_font);
 
 	if (data.theme_font_override.has(p_name)) {
 		data.theme_font_override[p_name]->disconnect_changed(callable_mp(this, &Control::_notify_theme_override_changed));
@@ -3548,12 +3559,9 @@ bool Control::is_layout_rtl() const {
 					} else if (proj_root_layout_direction == 2) {
 						data.is_rtl = true;
 					} else if (proj_root_layout_direction == 3) {
-						String locale = OS::get_singleton()->get_locale();
-						data.is_rtl = TS->is_locale_right_to_left(locale);
+						data.is_rtl = TS->is_locale_right_to_left(OS::get_singleton()->get_locale());
 					} else {
-						const Ref<Translation> &t = TranslationServer::get_singleton()->get_translation_object(TranslationServer::get_singleton()->get_locale());
-						String locale = t.is_valid() ? t->get_locale() : TranslationServer::get_singleton()->get_fallback_locale();
-						data.is_rtl = TS->is_locale_right_to_left(locale);
+						data.is_rtl = TS->is_locale_right_to_left(_get_locale());
 					}
 					return data.is_rtl;
 				}
@@ -3564,8 +3572,9 @@ bool Control::is_layout_rtl() const {
 				return data.is_rtl;
 			}
 #endif // TOOLS_ENABLED
+			const StringName domain_name = get_translation_domain();
 			Node *parent_node = get_parent();
-			while (parent_node) {
+			while (parent_node && domain_name == parent_node->get_translation_domain()) {
 				Control *parent_control = Object::cast_to<Control>(parent_node);
 				if (parent_control) {
 					data.is_rtl = parent_control->is_layout_rtl();
@@ -3588,22 +3597,19 @@ bool Control::is_layout_rtl() const {
 				String locale = OS::get_singleton()->get_locale();
 				data.is_rtl = TS->is_locale_right_to_left(locale);
 			} else {
-				String locale = TranslationServer::get_singleton()->get_tool_locale();
-				data.is_rtl = TS->is_locale_right_to_left(locale);
+				data.is_rtl = TS->is_locale_right_to_left(_get_locale());
 			}
 		} else if (data.layout_dir == LAYOUT_DIRECTION_APPLICATION_LOCALE) {
 			if (GLOBAL_GET_CACHED(bool, "internationalization/rendering/force_right_to_left_layout_direction")) {
 				data.is_rtl = true;
 			} else {
-				String locale = TranslationServer::get_singleton()->get_tool_locale();
-				data.is_rtl = TS->is_locale_right_to_left(locale);
+				data.is_rtl = TS->is_locale_right_to_left(_get_locale());
 			}
 		} else if (data.layout_dir == LAYOUT_DIRECTION_SYSTEM_LOCALE) {
 			if (GLOBAL_GET_CACHED(bool, "internationalization/rendering/force_right_to_left_layout_direction")) {
-				const_cast<Control *>(this)->data.is_rtl = true;
+				data.is_rtl = true;
 			} else {
-				String locale = OS::get_singleton()->get_locale();
-				const_cast<Control *>(this)->data.is_rtl = TS->is_locale_right_to_left(locale);
+				data.is_rtl = TS->is_locale_right_to_left(OS::get_singleton()->get_locale());
 			}
 		} else {
 			data.is_rtl = (data.layout_dir == LAYOUT_DIRECTION_RTL);
@@ -3749,8 +3755,10 @@ void Control::_notification(int p_notification) {
 			DisplayServer::get_singleton()->accessibility_update_set_flag(ae, DisplayServer::AccessibilityFlags::FLAG_CLIPS_CHILDREN, data.clip_contents);
 			DisplayServer::get_singleton()->accessibility_update_set_flag(ae, DisplayServer::AccessibilityFlags::FLAG_TOUCH_PASSTHROUGH, data.mouse_filter == MOUSE_FILTER_PASS);
 
-			DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_FOCUS, callable_mp(this, &Control::_accessibility_action_foucs));
-			DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_BLUR, callable_mp(this, &Control::_accessibility_action_blur));
+			if (_is_focusable()) {
+				DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_FOCUS, callable_mp(this, &Control::_accessibility_action_foucs));
+				DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_BLUR, callable_mp(this, &Control::_accessibility_action_blur));
+			}
 			DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_SHOW_TOOLTIP, callable_mp(this, &Control::_accessibility_action_show_tooltip));
 			DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_HIDE_TOOLTIP, callable_mp(this, &Control::_accessibility_action_hide_tooltip));
 			DisplayServer::get_singleton()->accessibility_update_add_action(ae, DisplayServer::AccessibilityAction::ACTION_SCROLL_INTO_VIEW, callable_mp(this, &Control::_accessibility_action_scroll_into_view));
@@ -4252,7 +4260,7 @@ void Control::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "rotation", PROPERTY_HINT_RANGE, "-360,360,0.1,or_less,or_greater,radians_as_degrees"), "set_rotation", "get_rotation");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "rotation_degrees", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_rotation_degrees", "get_rotation_degrees");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "scale"), "set_scale", "get_scale");
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "pivot_offset", PROPERTY_HINT_NONE, "suffix:px", PROPERTY_USAGE_EDITOR), "set_pivot_offset", "get_pivot_offset");
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "pivot_offset", PROPERTY_HINT_NONE, "suffix:px"), "set_pivot_offset", "get_pivot_offset");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "pivot_offset_ratio"), "set_pivot_offset_ratio", "get_pivot_offset_ratio");
 
 	ADD_SUBGROUP("Container Sizing", "size_flags_");
