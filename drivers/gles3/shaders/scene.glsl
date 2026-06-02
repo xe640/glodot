@@ -697,6 +697,8 @@ void vertex_shader(vec4 vertex_angle_attrib_input,
 	highp mat3 modelview_normal = mat3(scene_data_input.view_matrix) * model_normal_matrix;
 
 	float point_size = 1.0;
+	gl_ClipDistance[0] = 1.0;
+	gl_ClipDistance[1] = 1.0;
 
 	{
 #CODE : VERTEX

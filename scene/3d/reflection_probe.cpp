@@ -166,6 +166,15 @@ bool ReflectionProbe::are_shadows_enabled() const {
 	return enable_shadows;
 }
 
+void ReflectionProbe::set_use_post_processing(bool p_enable) {
+	use_post_processing = p_enable;
+	RS::get_singleton()->reflection_probe_set_use_post_processing(probe, p_enable);
+}
+
+bool ReflectionProbe::is_post_processing_used() const {
+	return use_post_processing;
+}
+
 void ReflectionProbe::set_cull_mask(uint32_t p_layers) {
 	cull_mask = p_layers;
 	RS::get_singleton()->reflection_probe_set_cull_mask(probe, p_layers);
@@ -248,6 +257,9 @@ void ReflectionProbe::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_enable_shadows", "enable"), &ReflectionProbe::set_enable_shadows);
 	ClassDB::bind_method(D_METHOD("are_shadows_enabled"), &ReflectionProbe::are_shadows_enabled);
 
+	ClassDB::bind_method(D_METHOD("set_use_post_processing", "enable"), &ReflectionProbe::set_use_post_processing);
+	ClassDB::bind_method(D_METHOD("is_post_processing_used"), &ReflectionProbe::is_post_processing_used);
+
 	ClassDB::bind_method(D_METHOD("set_cull_mask", "layers"), &ReflectionProbe::set_cull_mask);
 	ClassDB::bind_method(D_METHOD("get_cull_mask"), &ReflectionProbe::get_cull_mask);
 
@@ -266,6 +278,7 @@ void ReflectionProbe::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "box_projection"), "set_enable_box_projection", "is_box_projection_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "interior"), "set_as_interior", "is_set_as_interior");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "enable_shadows"), "set_enable_shadows", "are_shadows_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_post_processing"), "set_use_post_processing", "is_post_processing_used");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "cull_mask", PROPERTY_HINT_LAYERS_3D_RENDER), "set_cull_mask", "get_cull_mask");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "reflection_mask", PROPERTY_HINT_LAYERS_3D_RENDER), "set_reflection_mask", "get_reflection_mask");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "mesh_lod_threshold", PROPERTY_HINT_RANGE, "0,1024,0.1"), "set_mesh_lod_threshold", "get_mesh_lod_threshold");

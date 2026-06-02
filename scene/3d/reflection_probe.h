@@ -56,6 +56,7 @@ private:
 	Vector3 origin_offset = Vector3(0, 0, 0);
 	bool box_projection = false;
 	bool enable_shadows = false;
+	bool use_post_processing = false;
 	bool interior = false;
 	AmbientMode ambient_mode = AMBIENT_ENVIRONMENT;
 	Color ambient_color = Color(0, 0, 0);
@@ -113,6 +114,9 @@ public:
 
 	void set_enable_shadows(bool p_enable);
 	bool are_shadows_enabled() const;
+
+	void set_use_post_processing(bool p_enable);
+	bool is_post_processing_used() const;
 
 	void set_cull_mask(uint32_t p_layers);
 	uint32_t get_cull_mask() const;

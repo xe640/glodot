@@ -670,6 +670,7 @@ public:
 	virtual void reflection_probe_set_origin_offset(RID p_probe, const Vector3 &p_offset) = 0;
 	virtual void reflection_probe_set_as_interior(RID p_probe, bool p_enable) = 0;
 	virtual void reflection_probe_set_enable_box_projection(RID p_probe, bool p_enable) = 0;
+	virtual void reflection_probe_set_use_post_processing(RID p_probe, bool p_enable) = 0;
 	virtual void reflection_probe_set_enable_shadows(RID p_probe, bool p_enable) = 0;
 	virtual void reflection_probe_set_cull_mask(RID p_probe, uint32_t p_layers) = 0;
 	virtual void reflection_probe_set_reflection_mask(RID p_probe, uint32_t p_layers) = 0;

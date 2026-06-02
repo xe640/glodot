@@ -489,6 +489,7 @@ private:
 		bool current_depth_test_enabled = false;
 		bool current_scissor_test_enabled = false;
 		bool alpha_to_coverage_and_one_enabled = false;
+		bool clip_distance_enabled = false;
 
 		void reset_gl_state() {
 			glDisable(GL_BLEND);
@@ -520,6 +521,10 @@ private:
 
 			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 			alpha_to_coverage_and_one_enabled = false;
+
+			glDisable(GL_CLIP_DISTANCE0);
+			glDisable(GL_CLIP_DISTANCE1);
+			clip_distance_enabled = false;
 		}
 
 		void set_gl_cull_mode(RS::CullMode p_mode) {
@@ -628,6 +633,19 @@ private:
 				current_stencil_op_fail = p_op_fail;
 				current_stencil_op_dpfail = p_op_dpfail;
 				current_stencil_op_dppass = p_op_dppass;
+			}
+		}
+
+		void enable_gl_clip_distance(bool p_enabled) {
+			if (clip_distance_enabled != p_enabled) {
+				if (p_enabled) {
+					glDisable(GL_CLIP_DISTANCE0);
+					glDisable(GL_CLIP_DISTANCE1);
+				} else {
+					glDisable(GL_CLIP_DISTANCE0);
+					glDisable(GL_CLIP_DISTANCE1);
+				}
+				clip_distance_enabled = p_enabled;
 			}
 		}
 

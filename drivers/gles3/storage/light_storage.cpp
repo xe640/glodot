@@ -544,6 +544,13 @@ void LightStorage::reflection_probe_set_enable_box_projection(RID p_probe, bool 
 	reflection_probe->box_projection = p_enable;
 }
 
+void LightStorage::reflection_probe_set_use_post_processing(RID p_probe, bool p_enable) {
+	ReflectionProbe *reflection_probe = reflection_probe_owner.get_or_null(p_probe);
+	ERR_FAIL_NULL(reflection_probe);
+
+	reflection_probe->use_post_processing = p_enable;
+}
+
 void LightStorage::reflection_probe_set_enable_shadows(RID p_probe, bool p_enable) {
 	ReflectionProbe *reflection_probe = reflection_probe_owner.get_or_null(p_probe);
 	ERR_FAIL_NULL(reflection_probe);

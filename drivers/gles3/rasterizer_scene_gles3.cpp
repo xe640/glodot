@@ -2604,6 +2604,7 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	// Don't do depth prepass we are rendering overdraw
 	use_depth_prepass = use_depth_prepass && get_debug_draw_mode() != RS::VIEWPORT_DEBUG_DRAW_OVERDRAW;
 	scene_state.enable_gl_alpha_to_coverage(true);
+	scene_state.enable_gl_clip_distance(true);
 
 	if (use_depth_prepass) {
 		RENDER_TIMESTAMP("Depth Prepass");
@@ -2786,6 +2787,7 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	_render_list_template<PASS_MODE_COLOR>(&render_list_params, &render_data, 0, render_list[RENDER_LIST_OPAQUE].elements.size());
 
 	scene_state.enable_gl_depth_draw(false);
+	scene_state.enable_gl_clip_distance(false);
 	scene_state.enable_gl_stencil_test(false);
 
 	if (draw_sky || draw_sky_fog_only) {
@@ -2848,6 +2850,7 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 
 	RENDER_TIMESTAMP("Render 3D Transparent Pass");
 	scene_state.enable_gl_blend(true);
+	scene_state.enable_gl_clip_distance(true);
 
 	//Render transparent pass
 	RenderListParameters render_list_params_alpha(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), reverse_cull, spec_constant_base_flags, use_wireframe);
@@ -2869,7 +2872,7 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	scene_state.reset_gl_state();
 	glUseProgram(0);
 
-	if (!is_reflection_probe) {
+	if (!is_reflection_probe || (is_reflection_probe && GLES3::LightStorage::get_singleton()->get_reflection_probe(p_reflection_probe)->use_post_processing)) {
 		_render_post_processing(&render_data);
 
 		texture_storage->render_target_disable_clear_request(rb->render_target);
