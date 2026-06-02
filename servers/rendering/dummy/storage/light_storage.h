@@ -133,6 +133,7 @@ public:
 	virtual void reflection_probe_set_as_interior(RID p_probe, bool p_enable) override {}
 	virtual void reflection_probe_set_enable_box_projection(RID p_probe, bool p_enable) override {}
 	virtual void reflection_probe_set_enable_shadows(RID p_probe, bool p_enable) override {}
+	virtual void reflection_probe_set_use_post_processing(RID p_probe, bool p_enable) override {}
 	virtual void reflection_probe_set_cull_mask(RID p_probe, uint32_t p_layers) override {}
 	virtual void reflection_probe_set_reflection_mask(RID p_probe, uint32_t p_layers) override {}
 	virtual void reflection_probe_set_resolution(RID p_probe, int p_resolution) override {}
