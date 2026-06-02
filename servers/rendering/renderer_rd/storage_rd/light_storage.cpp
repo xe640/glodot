@@ -1159,6 +1159,11 @@ void LightStorage::reflection_probe_set_enable_shadows(RID p_probe, bool p_enabl
 	reflection_probe->dependency.changed_notify(Dependency::DEPENDENCY_CHANGED_REFLECTION_PROBE);
 }
 
+void LightStorage::reflection_probe_set_use_post_processing(RID p_probe, bool p_enable) {
+	// Not supported by this renderer backend.
+	// Ignored to satisfy the RendererLightStorage interface.
+}
+
 void LightStorage::reflection_probe_set_cull_mask(RID p_probe, uint32_t p_layers) {
 	ReflectionProbe *reflection_probe = reflection_probe_owner.get_or_null(p_probe);
 	ERR_FAIL_NULL(reflection_probe);
