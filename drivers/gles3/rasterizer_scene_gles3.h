@@ -639,8 +639,8 @@ private:
 		void enable_gl_clip_distance(bool p_enabled) {
 			if (clip_distance_enabled != p_enabled) {
 				if (p_enabled) {
-					glDisable(GL_CLIP_DISTANCE0);
-					glDisable(GL_CLIP_DISTANCE1);
+					glEnable(GL_CLIP_DISTANCE0);
+					glEnable(GL_CLIP_DISTANCE1);
 				} else {
 					glDisable(GL_CLIP_DISTANCE0);
 					glDisable(GL_CLIP_DISTANCE1);

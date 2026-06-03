@@ -2735,6 +2735,8 @@ void RasterizerSceneGLES3::render_scene(const Ref<RenderSceneBuffers> &p_render_
 	}
 
 	RENDER_TIMESTAMP("Render Opaque Pass");
+
+	scene_state.enable_gl_clip_distance(true);
 	uint64_t spec_constant_base_flags = 0;
 
 	if (render_data.render_region != Rect2i()) {
