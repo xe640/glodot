@@ -1141,6 +1141,13 @@ DisplayServerWeb::DisplayServerWeb(const String &p_rendering_driver, WindowMode 
 		if (!emscripten_webgl_enable_extension(webgl_ctx, "OVR_multiview2")) {
 			print_verbose("Failed to enable WebXR extension.");
 		}
+
+		// Try to enable clip/cull distance extension for WebGL runtimes. Some browsers expose
+		// it as "EXT_clip_cull_distance" or "WEBGL_clip_cull_distance". Attempt both.
+		if (!emscripten_webgl_enable_extension(webgl_ctx, "EXT_clip_cull_distance") &&
+			!emscripten_webgl_enable_extension(webgl_ctx, "WEBGL_clip_cull_distance")) {
+			print_verbose("Failed to enable clip/cull distance WebGL extension.");
+		}
 		RasterizerGLES3::make_current(false);
 
 	} else {
