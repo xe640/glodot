@@ -48,6 +48,7 @@
 #include "storage/material_storage.h"
 #include "storage/render_scene_buffers_gles3.h"
 #include "storage/utilities.h"
+#include "storage/config.h"
 
 enum RenderListType {
 	RENDER_LIST_OPAQUE, //used for opaque objects
@@ -522,13 +523,17 @@ private:
 			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 			alpha_to_coverage_and_one_enabled = false;
 
-			glDisable(GL_CLIP_DISTANCE0);
-			glDisable(GL_CLIP_DISTANCE1);
-			glDisable(GL_CLIP_DISTANCE2);
-			glDisable(GL_CLIP_DISTANCE3);
-			glDisable(GL_CLIP_DISTANCE4);
-			glDisable(GL_CLIP_DISTANCE5);
-			clip_distance_enabled = false;
+				#if defined(GL_CLIP_DISTANCE0)
+					if (GLES3::Config::get_singleton() && GLES3::Config::get_singleton()->clip_cull_distance_supported) {
+						glDisable(GL_CLIP_DISTANCE0);
+						glDisable(GL_CLIP_DISTANCE1);
+						glDisable(GL_CLIP_DISTANCE2);
+						glDisable(GL_CLIP_DISTANCE3);
+						glDisable(GL_CLIP_DISTANCE4);
+						glDisable(GL_CLIP_DISTANCE5);
+					}
+				#endif
+				clip_distance_enabled = false;
 		}
 
 		void set_gl_cull_mode(RS::CullMode p_mode) {
@@ -641,24 +646,36 @@ private:
 		}
 
 		void enable_gl_clip_distance(bool p_enabled) {
-			if (clip_distance_enabled != p_enabled) {
-				if (p_enabled) {
-					glEnable(GL_CLIP_DISTANCE0);
-					glEnable(GL_CLIP_DISTANCE1);
-					glEnable(GL_CLIP_DISTANCE2);
-					glEnable(GL_CLIP_DISTANCE3);
-					glEnable(GL_CLIP_DISTANCE4);
-					glEnable(GL_CLIP_DISTANCE5);
-				} else {
-					glDisable(GL_CLIP_DISTANCE0);
-					glDisable(GL_CLIP_DISTANCE1);
-					glDisable(GL_CLIP_DISTANCE2);
-					glDisable(GL_CLIP_DISTANCE3);
-					glDisable(GL_CLIP_DISTANCE4);
-					glDisable(GL_CLIP_DISTANCE5);
+		#if defined(GL_CLIP_DISTANCE0)
+			// Only call the GL enable/disable if the runtime reports support for the extension.
+			GLES3::Config *cfg = GLES3::Config::get_singleton();
+			if (cfg && cfg->clip_cull_distance_supported) {
+				if (clip_distance_enabled != p_enabled) {
+					if (p_enabled) {
+						glEnable(GL_CLIP_DISTANCE0);
+						glEnable(GL_CLIP_DISTANCE1);
+						glEnable(GL_CLIP_DISTANCE2);
+						glEnable(GL_CLIP_DISTANCE3);
+						glEnable(GL_CLIP_DISTANCE4);
+						glEnable(GL_CLIP_DISTANCE5);
+					} else {
+						glDisable(GL_CLIP_DISTANCE0);
+						glDisable(GL_CLIP_DISTANCE1);
+						glDisable(GL_CLIP_DISTANCE2);
+						glDisable(GL_CLIP_DISTANCE3);
+						glDisable(GL_CLIP_DISTANCE4);
+						glDisable(GL_CLIP_DISTANCE5);
+					}
+					clip_distance_enabled = p_enabled;
 				}
-				clip_distance_enabled = p_enabled;
+			} else {
+				// Runtime doesn't support clip/cull distance; ensure internal flag is false.
+				clip_distance_enabled = false;
 			}
+		#else
+			// Clip distance enums not available at compile time; ensure flag is false.
+			clip_distance_enabled = false;
+		#endif
 		}
 
 		GLenum current_stencil_compare = GL_ALWAYS;

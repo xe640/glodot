@@ -83,6 +83,9 @@ Config::Config() {
 	astc_layered_supported = astc_hdr_supported || extensions.has("GL_KHR_texture_compression_astc_sliced_3d");
 	astc_supported = astc_layered_supported || extensions.has("GL_KHR_texture_compression_astc_ldr") || extensions.has("WEBGL_compressed_texture_astc");
 
+	// Clip/cull distance extension (shader uses GL_EXT_clip_cull_distance; Web exposes WEBGL_clip_cull_distance)
+	clip_cull_distance_supported = extensions.has("GL_EXT_clip_cull_distance") || extensions.has("EXT_clip_cull_distance") || extensions.has("WEBGL_clip_cull_distance");
+
 	if (RasterizerGLES3::is_gles_over_gl()) {
 		float_texture_supported = true;
 		float_texture_linear_supported = true;
