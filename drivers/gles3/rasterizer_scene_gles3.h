@@ -574,7 +574,7 @@ private:
 				glDisable(GLES_CLIP_DISTANCE5);
 			}
 #endif
-				clip_distance_enabled = false;
+			clip_distance_enabled = false;
 		}
 
 		void set_gl_cull_mode(RS::CullMode p_mode) {
