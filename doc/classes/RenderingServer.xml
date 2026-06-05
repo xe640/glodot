@@ -3406,6 +3406,13 @@
 				Sets how often the reflection probe updates. Can either be once or every frame.
 			</description>
 		</method>
+		<method name="reflection_probe_set_use_post_processing">
+			<return type="void" />
+			<param index="0" name="probe" type="RID" />
+			<param index="1" name="enable" type="bool" />
+			<description>
+			</description>
+		</method>
 		<method name="request_frame_drawn_callback">
 			<return type="void" />
 			<param index="0" name="callable" type="Callable" />

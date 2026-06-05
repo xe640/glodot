@@ -44,11 +44,11 @@
 #include "servers/rendering/renderer_scene_render.h"
 #include "servers/rendering/rendering_server.h"
 #include "shader_gles3.h"
+#include "storage/config.h"
 #include "storage/light_storage.h"
 #include "storage/material_storage.h"
 #include "storage/render_scene_buffers_gles3.h"
 #include "storage/utilities.h"
-#include "storage/config.h"
 
 // Define platform-specific clip distance enum aliases.
 // Prefer WebGL-specific names when available, then EXT form, then core GL names.
@@ -564,16 +564,16 @@ private:
 			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 			alpha_to_coverage_and_one_enabled = false;
 
-						#if defined(GL_CLIP_DISTANCE0)
-							if (GLES3::Config::get_singleton() && GLES3::Config::get_singleton()->clip_cull_distance_supported) {
-								glDisable(GLES_CLIP_DISTANCE0);
-								glDisable(GLES_CLIP_DISTANCE1);
-								glDisable(GLES_CLIP_DISTANCE2);
-								glDisable(GLES_CLIP_DISTANCE3);
-								glDisable(GLES_CLIP_DISTANCE4);
-								glDisable(GLES_CLIP_DISTANCE5);
-							}
-						#endif
+#if defined(GL_CLIP_DISTANCE0)
+			if (GLES3::Config::get_singleton() && GLES3::Config::get_singleton()->clip_cull_distance_supported) {
+				glDisable(GLES_CLIP_DISTANCE0);
+				glDisable(GLES_CLIP_DISTANCE1);
+				glDisable(GLES_CLIP_DISTANCE2);
+				glDisable(GLES_CLIP_DISTANCE3);
+				glDisable(GLES_CLIP_DISTANCE4);
+				glDisable(GLES_CLIP_DISTANCE5);
+			}
+#endif
 				clip_distance_enabled = false;
 		}
 
@@ -687,7 +687,7 @@ private:
 		}
 
 		void enable_gl_clip_distance(bool p_enabled) {
-		#if defined(GL_CLIP_DISTANCE0)
+#if defined(GL_CLIP_DISTANCE0)
 			// Only call the GL enable/disable if the runtime reports support for the extension.
 			GLES3::Config *cfg = GLES3::Config::get_singleton();
 			if (cfg && cfg->clip_cull_distance_supported) {
@@ -713,10 +713,10 @@ private:
 				// Runtime doesn't support clip/cull distance; ensure internal flag is false.
 				clip_distance_enabled = false;
 			}
-		#else
+#else
 			// Clip distance enums not available at compile time; ensure flag is false.
 			clip_distance_enabled = false;
-		#endif
+#endif
 		}
 
 		GLenum current_stencil_compare = GL_ALWAYS;
