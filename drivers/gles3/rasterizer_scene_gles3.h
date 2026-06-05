@@ -50,6 +50,47 @@
 #include "storage/utilities.h"
 #include "storage/config.h"
 
+// Define platform-specific clip distance enum aliases.
+// Prefer WebGL-specific names when available, then EXT form, then core GL names.
+#if defined(CLIP_DISTANCE0_WEBGL)
+#define GLES_CLIP_DISTANCE0 CLIP_DISTANCE0_WEBGL
+#define GLES_CLIP_DISTANCE1 CLIP_DISTANCE1_WEBGL
+#define GLES_CLIP_DISTANCE2 CLIP_DISTANCE2_WEBGL
+#define GLES_CLIP_DISTANCE3 CLIP_DISTANCE3_WEBGL
+#define GLES_CLIP_DISTANCE4 CLIP_DISTANCE4_WEBGL
+#define GLES_CLIP_DISTANCE5 CLIP_DISTANCE5_WEBGL
+#define GLES_CLIP_DISTANCE6 CLIP_DISTANCE6_WEBGL
+#define GLES_CLIP_DISTANCE7 CLIP_DISTANCE7_WEBGL
+#elif defined(CLIP_DISTANCE0_EXT)
+#define GLES_CLIP_DISTANCE0 CLIP_DISTANCE0_EXT
+#define GLES_CLIP_DISTANCE1 CLIP_DISTANCE1_EXT
+#define GLES_CLIP_DISTANCE2 CLIP_DISTANCE2_EXT
+#define GLES_CLIP_DISTANCE3 CLIP_DISTANCE3_EXT
+#define GLES_CLIP_DISTANCE4 CLIP_DISTANCE4_EXT
+#define GLES_CLIP_DISTANCE5 CLIP_DISTANCE5_EXT
+#define GLES_CLIP_DISTANCE6 CLIP_DISTANCE6_EXT
+#define GLES_CLIP_DISTANCE7 CLIP_DISTANCE7_EXT
+#elif defined(GL_CLIP_DISTANCE0)
+#define GLES_CLIP_DISTANCE0 GL_CLIP_DISTANCE0
+#define GLES_CLIP_DISTANCE1 GL_CLIP_DISTANCE1
+#define GLES_CLIP_DISTANCE2 GL_CLIP_DISTANCE2
+#define GLES_CLIP_DISTANCE3 GL_CLIP_DISTANCE3
+#define GLES_CLIP_DISTANCE4 GL_CLIP_DISTANCE4
+#define GLES_CLIP_DISTANCE5 GL_CLIP_DISTANCE5
+#define GLES_CLIP_DISTANCE6 GL_CLIP_DISTANCE6
+#define GLES_CLIP_DISTANCE7 GL_CLIP_DISTANCE7
+#else
+// Fallback: define to impossible enum so calls are harmless if compiled out by guards.
+#define GLES_CLIP_DISTANCE0 0x3000
+#define GLES_CLIP_DISTANCE1 0x3001
+#define GLES_CLIP_DISTANCE2 0x3002
+#define GLES_CLIP_DISTANCE3 0x3003
+#define GLES_CLIP_DISTANCE4 0x3004
+#define GLES_CLIP_DISTANCE5 0x3005
+#define GLES_CLIP_DISTANCE6 0x3006
+#define GLES_CLIP_DISTANCE7 0x3007
+#endif
+
 enum RenderListType {
 	RENDER_LIST_OPAQUE, //used for opaque objects
 	RENDER_LIST_ALPHA, //used for transparent objects
@@ -523,16 +564,16 @@ private:
 			glDisable(GL_SAMPLE_ALPHA_TO_COVERAGE);
 			alpha_to_coverage_and_one_enabled = false;
 
-				#if defined(GL_CLIP_DISTANCE0)
-					if (GLES3::Config::get_singleton() && GLES3::Config::get_singleton()->clip_cull_distance_supported) {
-						glDisable(GL_CLIP_DISTANCE0);
-						glDisable(GL_CLIP_DISTANCE1);
-						glDisable(GL_CLIP_DISTANCE2);
-						glDisable(GL_CLIP_DISTANCE3);
-						glDisable(GL_CLIP_DISTANCE4);
-						glDisable(GL_CLIP_DISTANCE5);
-					}
-				#endif
+						#if defined(GL_CLIP_DISTANCE0)
+							if (GLES3::Config::get_singleton() && GLES3::Config::get_singleton()->clip_cull_distance_supported) {
+								glDisable(GLES_CLIP_DISTANCE0);
+								glDisable(GLES_CLIP_DISTANCE1);
+								glDisable(GLES_CLIP_DISTANCE2);
+								glDisable(GLES_CLIP_DISTANCE3);
+								glDisable(GLES_CLIP_DISTANCE4);
+								glDisable(GLES_CLIP_DISTANCE5);
+							}
+						#endif
 				clip_distance_enabled = false;
 		}
 
@@ -652,19 +693,19 @@ private:
 			if (cfg && cfg->clip_cull_distance_supported) {
 				if (clip_distance_enabled != p_enabled) {
 					if (p_enabled) {
-						glEnable(GL_CLIP_DISTANCE0);
-						glEnable(GL_CLIP_DISTANCE1);
-						glEnable(GL_CLIP_DISTANCE2);
-						glEnable(GL_CLIP_DISTANCE3);
-						glEnable(GL_CLIP_DISTANCE4);
-						glEnable(GL_CLIP_DISTANCE5);
+						glEnable(GLES_CLIP_DISTANCE0);
+						glEnable(GLES_CLIP_DISTANCE1);
+						glEnable(GLES_CLIP_DISTANCE2);
+						glEnable(GLES_CLIP_DISTANCE3);
+						glEnable(GLES_CLIP_DISTANCE4);
+						glEnable(GLES_CLIP_DISTANCE5);
 					} else {
-						glDisable(GL_CLIP_DISTANCE0);
-						glDisable(GL_CLIP_DISTANCE1);
-						glDisable(GL_CLIP_DISTANCE2);
-						glDisable(GL_CLIP_DISTANCE3);
-						glDisable(GL_CLIP_DISTANCE4);
-						glDisable(GL_CLIP_DISTANCE5);
+						glDisable(GLES_CLIP_DISTANCE0);
+						glDisable(GLES_CLIP_DISTANCE1);
+						glDisable(GLES_CLIP_DISTANCE2);
+						glDisable(GLES_CLIP_DISTANCE3);
+						glDisable(GLES_CLIP_DISTANCE4);
+						glDisable(GLES_CLIP_DISTANCE5);
 					}
 					clip_distance_enabled = p_enabled;
 				}
