@@ -107,6 +107,10 @@ ShaderTypes::ShaderTypes() {
 	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].built_ins["CUSTOM3"] = constt(ShaderLanguage::TYPE_VEC4);
 	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].built_ins["CLIP_DISTANCE_0"] = ShaderLanguage::TYPE_FLOAT;
 	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].built_ins["CLIP_DISTANCE_1"] = ShaderLanguage::TYPE_FLOAT;
+	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].built_ins["CLIP_DISTANCE_2"] = ShaderLanguage::TYPE_FLOAT;
+	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].built_ins["CLIP_DISTANCE_3"] = ShaderLanguage::TYPE_FLOAT;
+	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].built_ins["CLIP_DISTANCE_4"] = ShaderLanguage::TYPE_FLOAT;
+	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].built_ins["CLIP_DISTANCE_5"] = ShaderLanguage::TYPE_FLOAT;
 	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].can_discard = false;
 	shader_modes[RS::SHADER_SPATIAL].functions["vertex"].main_function = true;
 

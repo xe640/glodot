@@ -524,6 +524,10 @@ private:
 
 			glDisable(GL_CLIP_DISTANCE0);
 			glDisable(GL_CLIP_DISTANCE1);
+			glDisable(GL_CLIP_DISTANCE2);
+			glDisable(GL_CLIP_DISTANCE3);
+			glDisable(GL_CLIP_DISTANCE4);
+			glDisable(GL_CLIP_DISTANCE5);
 			clip_distance_enabled = false;
 		}
 
@@ -641,9 +645,17 @@ private:
 				if (p_enabled) {
 					glEnable(GL_CLIP_DISTANCE0);
 					glEnable(GL_CLIP_DISTANCE1);
+					glEnable(GL_CLIP_DISTANCE2);
+					glEnable(GL_CLIP_DISTANCE3);
+					glEnable(GL_CLIP_DISTANCE4);
+					glEnable(GL_CLIP_DISTANCE5);
 				} else {
 					glDisable(GL_CLIP_DISTANCE0);
 					glDisable(GL_CLIP_DISTANCE1);
+					glDisable(GL_CLIP_DISTANCE2);
+					glDisable(GL_CLIP_DISTANCE3);
+					glDisable(GL_CLIP_DISTANCE4);
+					glDisable(GL_CLIP_DISTANCE5);
 				}
 				clip_distance_enabled = p_enabled;
 			}

@@ -699,6 +699,10 @@ void vertex_shader(vec4 vertex_angle_attrib_input,
 	float point_size = 1.0;
 	gl_ClipDistance[0] = 1.0;
 	gl_ClipDistance[1] = 1.0;
+	gl_ClipDistance[2] = 1.0;
+	gl_ClipDistance[3] = 1.0;
+	gl_ClipDistance[4] = 1.0;
+	gl_ClipDistance[5] = 1.0;
 
 	{
 #CODE : VERTEX

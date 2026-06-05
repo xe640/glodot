@@ -1266,6 +1266,10 @@ MaterialStorage::MaterialStorage() {
 		actions.renames["Z_CLIP_SCALE"] = "z_clip_scale";
 		actions.renames["CLIP_DISTANCE_0"] = "gl_ClipDistance[0]";
 		actions.renames["CLIP_DISTANCE_1"] = "gl_ClipDistance[1]";
+		actions.renames["CLIP_DISTANCE_2"] = "gl_ClipDistance[2]";
+		actions.renames["CLIP_DISTANCE_3"] = "gl_ClipDistance[3]";
+		actions.renames["CLIP_DISTANCE_4"] = "gl_ClipDistance[4]";
+		actions.renames["CLIP_DISTANCE_5"] = "gl_ClipDistance[5]";
 
 		actions.renames["ALPHA_SCISSOR_THRESHOLD"] = "alpha_scissor_threshold";
 		actions.renames["ALPHA_HASH_SCALE"] = "alpha_hash_scale";
