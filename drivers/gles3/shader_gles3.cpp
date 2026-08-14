@@ -195,7 +195,7 @@ void ShaderGLES3::_build_variant_code(StringBuilder &builder, uint32_t p_variant
 	}
 
 #if defined(WEB_ENABLED)
-	builder.append("#extension GL_EXT_clip_cull_distance : enable\n");
+	builder.append("#extension GL_ANGLE_clip_cull_distance : enable\n");
 #else
 	if (!RasterizerGLES3::is_gles_over_gl()) {
 		builder.append("#extension GL_EXT_clip_cull_distance : enable\n");
