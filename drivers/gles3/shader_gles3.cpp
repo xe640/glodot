@@ -186,6 +186,16 @@ void ShaderGLES3::_build_variant_code(StringBuilder &builder, uint32_t p_variant
 	}
 	builder.append("\n"); //make sure defines begin at newline
 
+	if (p_stage_type == StageType::STAGE_TYPE_VERTEX) {
+		#if defined(WEB_ENABLED)
+			builder.append("#extension GL_ANGLE_clip_cull_distance : require\n");
+		#else
+			if (!RasterizerGLES3::is_gles_over_gl()) {
+				builder.append("#extension GL_EXT_clip_cull_distance : require\n");
+			}
+		#endif
+	}
+
 	// Optional support for external textures.
 	if (GLES3::Config::get_singleton()->external_texture_supported) {
 		builder.append("#extension GL_OES_EGL_image_external : enable\n");
@@ -194,13 +204,7 @@ void ShaderGLES3::_build_variant_code(StringBuilder &builder, uint32_t p_variant
 		builder.append("#define samplerExternalOES sampler2D\n");
 	}
 
-#if defined(WEB_ENABLED)
-	builder.append("#extension GL_ANGLE_clip_cull_distance : enable\n");
-#else
-	if (!RasterizerGLES3::is_gles_over_gl()) {
-		builder.append("#extension GL_EXT_clip_cull_distance : enable\n");
-	}
-#endif
+
 	
 
 	// Insert multiview extension loading, because it needs to appear before
